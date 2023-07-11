@@ -26,7 +26,7 @@ class Snake(object):
     def insert_head(self, head):
         self.body.insert(0, head)
 
-    def get_snake_len(self):
+    def __len__(self):
         return len(self.body)
 
     def is_collision(self, pt=None):
