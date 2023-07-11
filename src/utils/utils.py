@@ -1,25 +1,66 @@
+import numpy as np
 from collections import namedtuple
-from enum import Enum
-
-BLOCK_SIZE = 20
-SPEED = 10
-WHITE = (255, 255, 255)
-RED = (200, 0, 0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (0, 100, 255)
-BLACK = (0, 0, 0)
-
-Point = namedtuple("Point", ["x", "y"])
+from collections import deque
+from utils.motion import Action
+import random
+import torch
 
 
-class Direction(Enum):
-    RIGHT = 1
-    LEFT = 2
-    UP = 3
-    DOWN = 4
+MemoryUnit = namedtuple(
+    "MemoryUnit", ["state", "action", "reward", "next_state", "done"]
+)
 
 
-class Action(Enum):
-    STRAIGHT = [1, 0, 0]
-    RIGHT = [0, 1, 0]
-    LEFT = [0, 0, 1]
+class ReplayMemory(object):
+    def __init__(self, memory_size) -> None:
+        self.memory = deque([], maxlen=memory_size)
+
+    def save(
+        self,
+        state: np.ndarray,
+        action: Action,
+        reward: int,
+        next_state: np.ndarray,
+        done: bool,
+    ) -> None:
+        state = torch.tensor(state)
+        action = torch.tensor(action.value)
+        reward = torch.tensor(reward)
+        next_state = torch.tensor(next_state)
+        done = torch.tensor(done, dtype=torch.long)
+
+        self.memory.append(
+            MemoryUnit(
+                state=state,
+                action=action,
+                reward=reward,
+                next_state=next_state,
+                done=done,
+            )
+        )
+
+    def sample(self, batch_size: int = 64) -> MemoryUnit:
+        memories = (
+            random.sample(self.memory, batch_size)
+            if batch_size < len(self.memory)
+            else self.memory
+        )
+
+        state, action, reward, next_state, done = zip(*memories)
+
+        batch_state = torch.stack(state)
+        batch_action = torch.stack(action)
+        batch_reward = torch.stack(reward)
+        batch_next_state = torch.stack(next_state)
+        batch_done = torch.stack(done)
+
+        return MemoryUnit(
+            state=batch_state,
+            action=batch_action,
+            reward=batch_reward,
+            next_state=batch_next_state,
+            done=batch_done,
+        )
+
+    def __len__(self):
+        return len(self.memory)
