@@ -7,6 +7,13 @@ import torch.nn.functional as F
 class MLP_QNet(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int, output_dim: int) -> None:
         super(MLP_QNet, self).__init__()
+
+        self.device = torch.device(
+            "mps"
+            if torch.backends.mps.is_available() and torch.backends.mps.is_built()
+            else "cpu"
+        )
+
         self.hidden_layer = nn.Linear(input_dim, hidden_dim)
         self.output_layer = nn.Linear(hidden_dim, output_dim)
 
