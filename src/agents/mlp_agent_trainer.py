@@ -34,6 +34,8 @@ class MLPAgentTrainer(object):
         self.agent.main_net.train()
         self.agent.target_net.eval()
 
+        self.score_records = []
+
     def select_optimizer(self, optimizer_type, learning_rate):
         if optimizer_type == "Adam":
             return torch.optim.Adam(self.agent.main_net.parameters(), lr=learning_rate)
@@ -74,7 +76,7 @@ class MLPAgentTrainer(object):
                     action = self.agent.get_action(state=state)
 
                 # 4.play action
-                reward, done, _ = self.game.play_step(action=action)
+                reward, done, score = self.game.play_step(action=action)
                 # 5. observe new state
                 new_state = self.agent.get_state()
 
@@ -101,6 +103,12 @@ class MLPAgentTrainer(object):
                         main_net=self.agent.main_net,
                         tau=0.9,
                     )
+
+                # 10. store episode score and save model if is best record
+                if done:
+                    self.score_records.append(score)
+                    if score > max(self.score_records):
+                        self.agent.main_net.save_model()
 
     def train_step(self, memory: ReplayMemory):
         if len(memory) < self.batch_size:
