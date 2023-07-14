@@ -124,9 +124,9 @@ class MLPAgentTrainer(object):
             batch_non_done_next_state_mask
         ]
         with torch.no_grad():
-            batch_non_done_next_q_values = self.agent.target_net(
-                batch_non_done_next_state
-            )
+            batch_non_done_next_q_values = torch.max(
+                self.agent.target_net(batch_non_done_next_state), dim=1, keepdim=True
+            )[0]
 
         # 3. calculate target q_values
         #
@@ -143,7 +143,7 @@ class MLPAgentTrainer(object):
         # [Implement]
         # non_done q values = reward
         #     done q values = reward + discount_rate * next_q_values
-        batch_target_q_values = batch_reward.clone()
+        batch_target_q_values = batch_reward.clone().reshape_as(batch_q_values)
         batch_target_q_values[batch_non_done_next_state_mask] += (
             self.discount_rate * batch_non_done_next_q_values
         )
