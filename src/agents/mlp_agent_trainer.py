@@ -70,9 +70,9 @@ class MLPAgentTrainer(object):
                 # explore and exploit stratagey for obtaining action
                 # can implement a better stratagey
                 if np.random.rand() <= self.epsilon:  # explore
-                    action = self.agent.get_action(state=None, random_action=True)
+                    action = self.agent.get_action(state=None)
                 else:  # exploit
-                    action = self.agent.get_action(state=state, random_action=False)
+                    action = self.agent.get_action(state=state)
 
                 # 4.play action
                 reward, done, _ = self.game.play_step(action=action)
