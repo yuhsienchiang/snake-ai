@@ -57,7 +57,8 @@ class MLPAgentTrainer(object):
     def train(self, episodes_num: int = 50):
         training_steps = 0
 
-        for _ in range(episodes_num):
+        for idx_episodes in range(episodes_num):
+            print(f"episode: {idx_episodes}")
             # 1. initialise the game env
             self.game.reset()
             # 2. get initial state
