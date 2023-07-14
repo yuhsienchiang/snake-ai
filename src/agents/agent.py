@@ -5,7 +5,7 @@ from utils.motion import Action
 class Agent(object):
 
     def __init__(self, game: SnakeGame) -> None:
-        self.game = SnakeGame
+        self.game = game 
 
     def get_state(self) -> np.ndarray:
         pass
