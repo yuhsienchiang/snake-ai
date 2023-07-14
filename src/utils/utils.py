@@ -23,10 +23,10 @@ class ReplayMemory(object):
         next_state: np.ndarray,
         done: bool,
     ) -> None:
-        state = torch.tensor(state)
-        action = torch.tensor(action.value)
-        reward = torch.tensor(reward)
-        next_state = torch.tensor(next_state)
+        state = torch.tensor(state, dtype=torch.float32)
+        action = torch.tensor(action.value, dtype=torch.float32)
+        reward = torch.tensor(reward, dtype=torch.float32)
+        next_state = torch.tensor(next_state, dtype=torch.float32)
         done = torch.tensor(done, dtype=torch.long)
 
         self.memory.append(

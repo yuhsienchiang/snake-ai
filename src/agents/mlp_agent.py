@@ -63,7 +63,12 @@ class MLPAgent(Agent):
         if state is None:
             idx_action = np.random.randint(0, 3)
         else:
-            q_values = self.model(state)
+            state = (
+                state
+                if isinstance(state, torch.Tensor)
+                else torch.tensor(state, dtype=torch.float32)
+            )
+            q_values = self.main_net(state)
             idx_action = torch.argmax(q_values).item()
 
         action[idx_action] = 1
