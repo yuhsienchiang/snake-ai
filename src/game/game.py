@@ -30,6 +30,7 @@ class SnakeGame(object):
         self.score = 0
         self._place_food()
         self.frame_iteration = 0
+        self.idle_iteration = 0
 
     def _place_food(self) -> None:
         x = (
@@ -52,6 +53,7 @@ class SnakeGame(object):
 
     def play_step(self, action):
         self.frame_iteration += 1
+        self.idle_iteration += 1
         reward = 0
         game_over = False
 
@@ -59,7 +61,7 @@ class SnakeGame(object):
 
         if (
             self.snake.is_collision()
-            or self.frame_iteration > 100 * len(self.snake)
+            or self.idle_iteration > 100 * len(self.snake)
         ):
             game_over = True
             reward = -10
@@ -67,6 +69,7 @@ class SnakeGame(object):
 
         if self.food == self.snake.get_head():
             self.score += 1
+            self.idle_iteration = 0
             # TODO refine reward machenism
             reward = 10
             self._place_food()
