@@ -20,8 +20,11 @@ class Snake(object):
     def set_direction(self, directionion):
         self.direction = directionion
 
-    def get_head(self):
-        return copy.deepcopy(self.body[0])
+    def get_head(self, prev_head=0):
+        if prev_head >= len(self.body):
+            return -1
+
+        return copy.deepcopy(self.body[prev_head])
 
     def insert_head(self, head):
         self.body.insert(0, head)

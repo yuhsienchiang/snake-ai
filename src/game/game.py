@@ -1,4 +1,6 @@
 import pygame
+import numpy as np
+import math
 import random
 from .snake import Snake
 from utils.motion import SPEED
@@ -12,6 +14,10 @@ class SnakeGame(object):
         self.font = self.pygame.font.SysFont("FiraCode Nerd Font", size=25)
         self.window_width = width
         self.window_height = height
+        self.grid_size = (self.window_width // BLOCK_SIZE) * (
+            self.window_height // BLOCK_SIZE
+        )
+
         self.window = self.pygame.display.set_mode(
             (self.window_width, self.window_height)
         )
@@ -54,32 +60,47 @@ class SnakeGame(object):
     def play_step(self, action):
         self.frame_iteration += 1
         self.idle_iteration += 1
-        reward = 0
-        game_over = False
 
         self.snake.move(action)
 
-        if (
-            self.snake.is_collision()
-            or self.idle_iteration > 100 * len(self.snake)
-        ):
-            game_over = True
-            reward = -10
-            return reward, game_over, self.score
+        # check done
+        if self.snake.is_collision() or self.idle_iteration > 100 * len(self.snake):
+            # snake collide or idle
+            done = True
+        else:
+            done = False
 
-        if self.food == self.snake.get_head():
+        # compute reward
+        curr_head = self.snake.get_head(0)
+        prev_head = self.snake.get_head(1)
+
+        if done:
+            reward = len(self.snake) - self.grid_size
+        elif self.food == curr_head:
+            # snkae get food
+            reward = math.exp((self.grid_size - self.idle_iteration) / self.grid_size)
+
             self.score += 1
             self.idle_iteration = 0
-            # TODO refine reward machenism
-            reward = 10
             self._place_food()
+
         else:
+            if self._distance(curr_head, self.food) < self._distance(prev_head, self.food):
+                reward = 1 / len(self.snake)
+            else:
+                reward = -1 / len(self.snake)
+
             self.snake.body.pop()
 
-        self._update_ui()
-        self.clock.tick(SPEED)
+        # update ui
+        if not done:
+            self._update_ui()
+            self.clock.tick(SPEED)
 
-        return reward, game_over, self.score
+        return reward, done, self.score
+
+    def _distance(self, point_1: Point, point_2: Point):
+        return np.linalg.norm(np.subtract(point_1, point_2))
 
     def _update_ui(self) -> None:
         # fill the background
