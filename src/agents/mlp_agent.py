@@ -25,6 +25,11 @@ class MLPAgent(Agent):
                 if isinstance(state, torch.Tensor)
                 else torch.tensor(state, dtype=torch.float32)
             )
+
+            # handdle input without batch dim
+            if len(state.shape) == 2:
+                state = torch.unsqueeze(state, 0)
+
             q_values = self.main_net(state)
             idx_action = torch.argmax(q_values).item()
 
