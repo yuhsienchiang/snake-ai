@@ -37,7 +37,6 @@ class SnakeGame(object):
         self.score = 0
         self._place_food()
         self.frame_iteration = 0
-        self.idle_iteration = 0
 
     def _place_food(self) -> None:
         x = (
@@ -78,10 +77,10 @@ class SnakeGame(object):
             reward = len(self.snake) - self.grid_size
         elif self.food == curr_head:
             # snkae get food
-            reward = math.exp((self.grid_size - self.idle_iteration) / self.grid_size)
+            reward = math.exp((self.grid_size - self.frame_iteration) / self.grid_size)
 
             self.score += 1
-            self.idle_iteration = 0
+            self.frame_iteration = 0
             self._place_food()
 
         else:
