@@ -20,7 +20,7 @@ class MLPAgentTrainer(object):
         discount_rate: float = 0.99,
         epsilon_start: float = 0.9,
         epsilon_end: float = 0.05,
-        epsilon_decay: float = 1000.0
+        epsilon_decay: float = 1000.0,
     ) -> None:
         self.game = game
         self.agent = agent
@@ -71,7 +71,9 @@ class MLPAgentTrainer(object):
             while done is False:
                 training_steps += 1
 
-                eps_threshold = self.epsilon_end + (self.epsilon_start - self.epsilon_end) *  math.exp(-1. * training_steps / self.epsilon_decay)
+                eps_threshold = self.epsilon_end + (
+                    self.epsilon_start - self.epsilon_end
+                ) * math.exp(-1.0 * training_steps / self.epsilon_decay)
                 # 3. get action
                 # explore and exploit stratagey for obtaining action
                 # can implement a better stratagey
