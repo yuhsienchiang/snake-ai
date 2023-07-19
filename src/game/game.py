@@ -59,12 +59,11 @@ class SnakeGame(object):
 
     def play_step(self, action):
         self.frame_iteration += 1
-        self.idle_iteration += 1
 
         self.snake.move(action)
 
         # check done
-        if self.snake.is_collision() or self.idle_iteration > 100 * len(self.snake):
+        if self.snake.is_collision() or self.frame_iteration > 100 * len(self.snake):
             # snake collide or idle
             done = True
         else:
