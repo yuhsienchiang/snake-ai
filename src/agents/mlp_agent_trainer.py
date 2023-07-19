@@ -60,9 +60,7 @@ class MLPAgentTrainer(object):
         for idx_episodes in range(episodes_num):
             print(f"episode: {idx_episodes}")
             # 1. initialise the game env
-            self.game.reset()
-            # 2. get initial state
-            state = self.agent.get_state()
+            state = self.game.reset()
             done = False
 
             while done is False:
@@ -77,7 +75,7 @@ class MLPAgentTrainer(object):
                     action = self.agent.get_action(state=state)
 
                 # 4.play action
-                reward, done, score = self.game.play_step(action=action)
+                next_state, reward, done, score = self.game.play_step(action=action)
                 # 5. observe new state
                 new_state = self.agent.get_state()
 
