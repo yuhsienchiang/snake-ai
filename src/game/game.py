@@ -34,9 +34,22 @@ class SnakeGame(object):
             boundary_x=self.window_width,
             boundary_y=self.window_height,
         )
-        self.score = 0
         self._place_food()
+        self.score = 0
         self.frame_iteration = 0
+
+        return self.get_state()
+
+    def get_state(self) -> np.ndarray:
+        state = np.zeros((self.grid_height, self.grid_width), dtype=np.float32)
+
+        state.T[tuple((np.transpose(self.snake.body) - BLOCK_SIZE) // BLOCK_SIZE)] = np.linspace(
+            0.8, 0.2, len(self.snake)
+        )
+        state.T[tuple((np.transpose(self.snake.get_head()) - BLOCK_SIZE) // BLOCK_SIZE)] = 1.0
+        state.T[tuple((np.transpose(self.food) - BLOCK_SIZE) // BLOCK_SIZE)] = -1.0
+
+        return state
 
     def _place_food(self) -> None:
         x = (
@@ -57,10 +70,11 @@ class SnakeGame(object):
         if self.snake.is_collision(pt=self.food):
             self._place_food()
 
-    def play_step(self, action):
+    def play_step(self, action) -> tuple[np.ndarray, float, bool, int]:
         self.frame_iteration += 1
 
         self.snake.move(action)
+        next_state = self.get_state()
 
         # check done
         if self.snake.is_collision() or self.frame_iteration > 100 * len(self.snake):
@@ -96,13 +110,14 @@ class SnakeGame(object):
                 )
 
             self.snake.body.pop()
+            next_state = self.get_state()
 
         # update ui
         if not done:
             self._update_ui()
             self.clock.tick(SPEED)
 
-        return reward, done, self.score
+        return next_state, reward, done, self.score
 
     def _distance(self, point_1: Point, point_2: Point) -> float:
         return np.linalg.norm(np.subtract(point_1, point_2)) / BLOCK_SIZE
