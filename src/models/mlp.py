@@ -14,10 +14,12 @@ class MLP_QNet(nn.Module):
             else "cpu"
         )
 
+        self.input_layer = nn.Flatten()
         self.hidden_layer = nn.Linear(input_dim, hidden_dim)
         self.output_layer = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
+        x = self.input_layer(x)
         x = self.hidden_layer(x)
         x = F.relu(x)
         return self.output_layer(x)
