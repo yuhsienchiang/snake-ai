@@ -83,19 +83,18 @@ class MLPAgentTrainer(object):
                 # 4.play action
                 next_state, reward, done, score = self.game.play_step(action=action)
                 # 5. observe new state
-                new_state = self.agent.get_state()
 
                 # 6. save transition info in memory
                 self.memory.save(
                     state=state,
                     action=action,
                     reward=reward,
-                    next_state=new_state,
+                    next_state=next_state,
                     done=done,
                 )
 
                 # 7. move to next state
-                state = new_state
+                state = next_state
 
                 # 8. train model every 4 steps
                 if training_steps % 4 == 0 or done:

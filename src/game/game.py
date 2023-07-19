@@ -26,7 +26,7 @@ class SnakeGame(object):
         self.clock = self.pygame.time.Clock()
         self.reset()
 
-    def reset(self):
+    def reset(self) -> np.ndarray:
         self.snake = Snake(
             head_x=(((self.window_width - BLOCK_SIZE) // BLOCK_SIZE) // 2) * BLOCK_SIZE,
             head_y=(((self.window_height - BLOCK_SIZE) // BLOCK_SIZE) // 2)
@@ -161,7 +161,7 @@ class SnakeGame(object):
         # update the frame
         self.pygame.display.flip()
 
-    def end_game_ui(self, title, score):
+    def end_game_ui(self, title, score) -> None:
         self.window.fill(BLACK)
 
         title_text = self.font.render(title, True, WHITE)
