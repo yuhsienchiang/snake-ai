@@ -9,13 +9,15 @@ if __name__ == "__main__":
 
     mlpAgentTrainer = MLPAgentTrainer(game=snakeGame,
                                       agent=mlpAgent,
-                                      batch_size=16,
+                                      batch_size=128,
                                       memory_size=10000,
                                       loss_func_type="huber",
                                       optimizer_type="AdamW",
                                       model_learn_rate=0.0001,
                                       discount_rate=0.99,
-                                      epsilon=0.005)
+                                      epsilon_start=0.9,
+                                      epsilon_end=0.05,
+                                      epsilon_decay=1000.0)
     
-    mlpAgentTrainer.train(episodes_num=50)
+    mlpAgentTrainer.train(episodes_num=100)
     print("train done")

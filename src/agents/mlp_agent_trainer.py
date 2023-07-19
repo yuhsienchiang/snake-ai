@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import math
 from torch import nn
 from game.game import SnakeGame
 from agents.mlp_agent import MLPAgent
@@ -17,7 +18,9 @@ class MLPAgentTrainer(object):
         optimizer_type: str = "AdamW",
         model_learn_rate: float = 1e-4,
         discount_rate: float = 0.99,
-        epsilon: float = 0.005,
+        epsilon_start: float = 0.9,
+        epsilon_end: float = 0.05,
+        epsilon_decay: float = 1000.0
     ) -> None:
         self.game = game
         self.agent = agent
@@ -25,7 +28,9 @@ class MLPAgentTrainer(object):
         self.memory = ReplayMemory(memory_size=memory_size)
         self.discount_rate = discount_rate
         self.model_learn_rate = model_learn_rate
-        self.epsilon = epsilon
+        self.epsilon_start = epsilon_start
+        self.epsilon_end = epsilon_end
+        self.epsilon_decay = epsilon_decay
 
         self.optimizer = self.select_optimizer(optimizer_type, model_learn_rate)
         self.loss_func = self.select_loss_func(loss_func_type)
@@ -66,10 +71,11 @@ class MLPAgentTrainer(object):
             while done is False:
                 training_steps += 1
 
+                eps_threshold = self.epsilon_end + (self.epsilon_start - self.epsilon_end) *  math.exp(-1. * training_steps / self.epsilon_decay)
                 # 3. get action
                 # explore and exploit stratagey for obtaining action
                 # can implement a better stratagey
-                if np.random.rand() <= self.epsilon:  # explore
+                if np.random.rand() <= eps_threshold:  # explore
                     action = self.agent.get_action(state=None)
                 else:  # exploit
                     action = self.agent.get_action(state=state)
