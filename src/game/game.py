@@ -14,9 +14,10 @@ class SnakeGame(object):
         self.font = self.pygame.font.SysFont("FiraCode Nerd Font", size=25)
         self.window_width = width
         self.window_height = height
-        self.grid_size = (self.window_width // BLOCK_SIZE) * (
-            self.window_height // BLOCK_SIZE
-        )
+
+        self.grid_width = width // BLOCK_SIZE
+        self.grid_height = height // BLOCK_SIZE
+        self.grid_size = self.grid_height * self.grid_width
 
         self.window = self.pygame.display.set_mode(
             (self.window_width, self.window_height)
@@ -85,9 +86,15 @@ class SnakeGame(object):
 
         else:
             if self._distance(curr_head, self.food) < self._distance(prev_head, self.food):
-                reward = 1 / len(self.snake)
+                # 1. distance to food -> small
+                # 2. iteration -> small
+                # 3. snake length -> small
+                # 4. move toward food +-
+                reward = 1.0 * len(self.snake) / self._distance(curr_head, self.food) 
             else:
-                reward = -1 / len(self.snake)
+                reward = (
+                    - self._distance(curr_head, self.food)  / (10.0 * len(self.snake))
+                )
 
             self.snake.body.pop()
 
@@ -98,8 +105,8 @@ class SnakeGame(object):
 
         return reward, done, self.score
 
-    def _distance(self, point_1: Point, point_2: Point):
-        return np.linalg.norm(np.subtract(point_1, point_2))
+    def _distance(self, point_1: Point, point_2: Point) -> float:
+        return np.linalg.norm(np.subtract(point_1, point_2)) / BLOCK_SIZE
 
     def _update_ui(self) -> None:
         # fill the background
