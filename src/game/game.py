@@ -75,7 +75,6 @@ class SnakeGame(object):
         self.frame_iteration += 1
 
         self.snake.move(action)
-        next_state = self.get_state()
 
         # check done
         if self.snake.is_collision() or self.frame_iteration > 100 * len(self.snake):
@@ -111,7 +110,7 @@ class SnakeGame(object):
                 )
 
             self.snake.body.pop()
-            next_state = self.get_state()
+        next_state = self.get_state()
 
         # update ui
         if not done:
