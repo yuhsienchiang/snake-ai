@@ -1,7 +1,6 @@
 import numpy as np
 import torch
-from utils.motion import Action, Direction
-from utils.ui import Point, BLOCK_SIZE
+from utils.motion import Action
 from game.game import SnakeGame
 from agents.agent import Agent
 from models.mlp import MLP_QNet
