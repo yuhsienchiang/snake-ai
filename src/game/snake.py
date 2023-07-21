@@ -61,8 +61,9 @@ class Snake(object):
 
         self.set_direction(next_direction)
 
-        head_x = self.get_head().x
-        head_y = self.get_head().y
+        head = self.get_head(prev_head=0)
+        head_x = head.x
+        head_y = head.y
 
         if self.get_direction() == Direction.RIGHT:
             head_x += BLOCK_SIZE

@@ -71,12 +71,12 @@ class MLPAgentTrainer(object):
             while done is False:
                 training_steps += 1
 
-                eps_threshold = self.epsilon_end + (
-                    self.epsilon_start - self.epsilon_end
-                ) * math.exp(-1.0 * training_steps / self.epsilon_decay)
                 # 3. get action
                 # explore and exploit stratagey for obtaining action
                 # can implement a better stratagey
+                eps_threshold = self.epsilon_end + (
+                    self.epsilon_start - self.epsilon_end
+                ) * math.exp(-1.0 * training_steps / self.epsilon_decay)
                 if np.random.rand() <= eps_threshold:  # explore
                     action = self.agent.get_action(state=None)
                 else:  # exploit

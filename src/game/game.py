@@ -28,9 +28,8 @@ class SnakeGame(object):
 
     def reset(self) -> np.ndarray:
         self.snake = Snake(
-            head_x=(((self.window_width - BLOCK_SIZE) // BLOCK_SIZE) // 2) * BLOCK_SIZE,
-            head_y=(((self.window_height - BLOCK_SIZE) // BLOCK_SIZE) // 2)
-            * BLOCK_SIZE,
+            head_x=(((self.window_width // BLOCK_SIZE) - 1) // 2) * BLOCK_SIZE,
+            head_y=(((self.window_height // BLOCK_SIZE) - 1) // 2) * BLOCK_SIZE,
             boundary_x=self.window_width,
             boundary_y=self.window_height,
         )
@@ -43,10 +42,12 @@ class SnakeGame(object):
     def get_state(self) -> np.ndarray:
         state = np.zeros((self.grid_height, self.grid_width), dtype=np.float32)
 
-        state.T[tuple((np.transpose(self.snake.body) - BLOCK_SIZE) // BLOCK_SIZE)] = np.linspace(
-            0.8, 0.2, len(self.snake)
-        )
-        state.T[tuple((np.transpose(self.snake.get_head()) - BLOCK_SIZE) // BLOCK_SIZE)] = 1.0
+        state.T[
+            tuple((np.transpose(self.snake.body) - BLOCK_SIZE) // BLOCK_SIZE)
+        ] = np.linspace(0.8, 0.2, len(self.snake))
+        state.T[
+            tuple((np.transpose(self.snake.get_head()) - BLOCK_SIZE) // BLOCK_SIZE)
+        ] = 1.0
         state.T[tuple((np.transpose(self.food) - BLOCK_SIZE) // BLOCK_SIZE)] = -1.0
 
         return state
