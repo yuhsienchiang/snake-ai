@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class MLP_QNet(nn.Module):
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int) -> None:
+    def __init__(self, input_dim: int, hidden_1_dim: int, hidden_2_dim: int, output_dim: int) -> None:
         super(MLP_QNet, self).__init__()
 
         self.device = torch.device(
@@ -15,12 +15,15 @@ class MLP_QNet(nn.Module):
         )
 
         self.input_layer = nn.Flatten()
-        self.hidden_layer = nn.Linear(input_dim, hidden_dim)
-        self.output_layer = nn.Linear(hidden_dim, output_dim)
+        self.hidden_1_layer = nn.Linear(input_dim, hidden_1_dim)
+        self.hidden_2_layer = nn.Linear(hidden_1_dim, hidden_2_dim)
+        self.output_layer = nn.Linear(hidden_2_dim, output_dim)
 
     def forward(self, x):
         x = self.input_layer(x)
-        x = self.hidden_layer(x)
+        x = self.hidden_1_layer(x)
+        x = F.relu(x)
+        x = self.hidden_2_layer(x)
         x = F.relu(x)
         return self.output_layer(x)
 
