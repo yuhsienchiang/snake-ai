@@ -113,9 +113,9 @@ class MLPAgentTrainer(object):
 
                 # 7. store episode score and save model if is best record
                 if done:
-                    self.score_records.append(score)
                     if score > max(self.score_records):
                         self.agent.main_net.save_model()
+                    self.score_records.append(score)
 
     def train_step(self, memory: ReplayMemory, batch_size: int):
         if len(memory) < batch_size:
