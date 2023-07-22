@@ -3,7 +3,7 @@ import numpy as np
 import math
 import random
 from .snake import Snake
-from utils.motion import SPEED
+from utils.motion import SPEED, Direction
 from utils.ui import Point, BLOCK_SIZE, RED, BLUE1, BLUE2, GREEN1, GREEN2, BLACK, WHITE
 
 
@@ -40,17 +40,47 @@ class SnakeGame(object):
         return self.get_state()
 
     def get_state(self) -> np.ndarray:
-        state = np.zeros((self.grid_height, self.grid_width), dtype=np.float32)
+        head = self.snake.get_head(prev_head=0)
 
-        state.T[
-            tuple((np.transpose(self.snake.body) - BLOCK_SIZE) // BLOCK_SIZE)
-        ] = np.linspace(0.8, 0.2, len(self.snake))
-        state.T[
-            tuple((np.transpose(self.snake.get_head()) - BLOCK_SIZE) // BLOCK_SIZE)
-        ] = 1.0
-        state.T[tuple((np.transpose(self.food) - BLOCK_SIZE) // BLOCK_SIZE)] = -1.0
+        point_l = Point(head.x - BLOCK_SIZE, head.y)
+        point_r = Point(head.x + BLOCK_SIZE, head.y)
+        point_u = Point(head.x, head.y - BLOCK_SIZE)
+        point_d = Point(head.x, head.y + BLOCK_SIZE)
 
-        return state
+        snake_direction = self.snake.get_direction()
+        dir_l = snake_direction == Direction.LEFT
+        dir_r = snake_direction == Direction.RIGHT
+        dir_u = snake_direction == Direction.UP
+        dir_d = snake_direction == Direction.DOWN
+
+        state = [[
+            # Danger straight
+            (dir_r and self.snake.is_collision(point_r))
+            or (dir_l and self.snake.is_collision(point_l))
+            or (dir_u and self.snake.is_collision(point_u))
+            or (dir_d and self.snake.is_collision(point_d)),
+            # Danger right
+            (dir_u and self.snake.is_collision(point_r))
+            or (dir_d and self.snake.is_collision(point_l))
+            or (dir_l and self.snake.is_collision(point_u))
+            or (dir_r and self.snake.is_collision(point_d)),
+            # Danger left
+            (dir_d and self.snake.is_collision(point_r))
+            or (dir_u and self.snake.is_collision(point_l))
+            or (dir_r and self.snake.is_collision(point_u))
+            or (dir_l and self.snake.is_collision(point_d)),
+            # Move direction
+            dir_l,
+            dir_r,
+            dir_u,
+            dir_d,
+            # Food location
+            self.food.x < head.x,  # food left
+            self.food.x > head.x,  # food right
+            self.food.y < head.y,  # food up
+            self.food.y > head.y,  # food down
+        ]]
+        return np.array(state, dtype=np.int64)
 
     def _place_food(self) -> None:
         x = random.randint(0, (self.window_width // BLOCK_SIZE) - 1) * BLOCK_SIZE
