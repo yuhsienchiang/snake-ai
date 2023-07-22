@@ -109,23 +109,24 @@ class SnakeGame(object):
             reward = len(self.snake) - self.grid_size
         elif self.food == curr_head:
             # snkae get food
-            reward = 20 * math.exp(
-                (self.grid_size - self.frame_iteration) / self.grid_size
-            )
+            reward = 15 * math.exp((self.grid_size - self.frame_iteration) / self.grid_size)
 
             self.score += 1
             self.frame_iteration = 0
             self._place_food()
 
         else:
-            if self._distance(curr_head, self.food) < self._distance(prev_head, self.food):
+            if self._distance(curr_head, self.food) < self._distance(
+                prev_head, self.food
+            ):
                 # 1. distance to food -> small
                 # 2. iteration -> small
                 # 3. snake length -> small
                 # 4. move toward food +-
-                reward = 10 / len(self.snake)
+                reward = 1 / len(self.snake)
             else:
-                reward = -10 / len(self.snake)
+                reward = - 1 / len(self.snake)
+                
 
             self.snake.body.pop()
         next_state = self.get_state()
