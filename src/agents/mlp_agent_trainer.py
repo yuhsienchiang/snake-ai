@@ -12,7 +12,6 @@ class MLPAgentTrainer(object):
         self,
         game: SnakeGame,
         agent: MLPAgent,
-        batch_size: int = 128,
         memory_size: int = 10000,
         loss_func_type: str = "huber",
         optimizer_type: str = "AdamW",
@@ -24,7 +23,6 @@ class MLPAgentTrainer(object):
     ) -> None:
         self.game = game
         self.agent = agent
-        self.batch_size = batch_size
         self.memory = ReplayMemory(memory_size=memory_size)
         self.discount_rate = discount_rate
         self.model_learn_rate = model_learn_rate
@@ -60,7 +58,7 @@ class MLPAgentTrainer(object):
         else:
             return None
 
-    def train(self, episodes_num: int = 50):
+    def train(self, episodes_num: int = 50, batch_size: int = 128):
         training_steps = 0
 
         for idx_episodes in range(episodes_num):
@@ -101,7 +99,10 @@ class MLPAgentTrainer(object):
 
                 # 8. train model every 4 steps
                 if training_steps % 4 == 0 or done:
-                    self.train_step(memory=self.memory)
+                    self.train_step(
+                        memory=self.memory,
+                        batch_size=batch_size if not done else len(self.memory),
+                    )
 
                 # 9. update target net every 50 steps
                 if training_steps % 50 == 0 or done:
@@ -111,18 +112,18 @@ class MLPAgentTrainer(object):
                         tau=0.9,
                     )
 
-                # 10. store episode score and save model if is best record
+                # 7. store episode score and save model if is best record
                 if done:
                     self.score_records.append(score)
                     if score > max(self.score_records):
                         self.agent.main_net.save_model()
 
-    def train_step(self, memory: ReplayMemory):
-        if len(memory) < self.batch_size:
+    def train_step(self, memory: ReplayMemory, batch_size: int):
+        if len(memory) < batch_size:
             return
 
         # 1. random sample memories
-        batch_memory = memory.sample(self.batch_size)
+        batch_memory = memory.sample(batch_size)
 
         # 2-1. current state data
         batch_state = batch_memory.state.to(self.device)
