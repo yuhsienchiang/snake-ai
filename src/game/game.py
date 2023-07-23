@@ -40,12 +40,13 @@ class SnakeGame(object):
         return self.get_state()
 
     def get_state(self) -> np.ndarray:
-        head = self.snake.get_head(prev_head=0)
+        current_head = self.snake.get_head(prev_head=0)
+        prev_head = self.snake.get_head(prev_head=1)
 
-        point_l = Point(head.x - BLOCK_SIZE, head.y)
-        point_r = Point(head.x + BLOCK_SIZE, head.y)
-        point_u = Point(head.x, head.y - BLOCK_SIZE)
-        point_d = Point(head.x, head.y + BLOCK_SIZE)
+        point_l = Point(current_head.x - BLOCK_SIZE, current_head.y)
+        point_r = Point(current_head.x + BLOCK_SIZE, current_head.y)
+        point_u = Point(current_head.x, current_head.y - BLOCK_SIZE)
+        point_d = Point(current_head.x, current_head.y + BLOCK_SIZE)
 
         snake_direction = self.snake.get_direction()
         dir_l = snake_direction == Direction.LEFT
@@ -53,34 +54,42 @@ class SnakeGame(object):
         dir_u = snake_direction == Direction.UP
         dir_d = snake_direction == Direction.DOWN
 
-        state = [[
-            # Danger straight
-            (dir_r and self.snake.is_collision(point_r))
-            or (dir_l and self.snake.is_collision(point_l))
-            or (dir_u and self.snake.is_collision(point_u))
-            or (dir_d and self.snake.is_collision(point_d)),
-            # Danger right
-            (dir_u and self.snake.is_collision(point_r))
-            or (dir_d and self.snake.is_collision(point_l))
-            or (dir_l and self.snake.is_collision(point_u))
-            or (dir_r and self.snake.is_collision(point_d)),
-            # Danger left
-            (dir_d and self.snake.is_collision(point_r))
-            or (dir_u and self.snake.is_collision(point_l))
-            or (dir_r and self.snake.is_collision(point_u))
-            or (dir_l and self.snake.is_collision(point_d)),
-            # Move direction
-            dir_l,
-            dir_r,
-            dir_u,
-            dir_d,
-            # Food location
-            self.food.x < head.x,  # food left
-            self.food.x > head.x,  # food right
-            self.food.y < head.y,  # food up
-            self.food.y > head.y,  # food down
-        ]]
-        return np.array(state, dtype=np.int64)
+        state = [
+            [
+                # Danger straight
+                np.int32(
+                    (dir_r and self.snake.is_collision(point_r))
+                    or (dir_l and self.snake.is_collision(point_l))
+                    or (dir_u and self.snake.is_collision(point_u))
+                    or (dir_d and self.snake.is_collision(point_d))
+                ),
+                # Danger right
+                np.int32(
+                    (dir_u and self.snake.is_collision(point_r))
+                    or (dir_d and self.snake.is_collision(point_l))
+                    or (dir_l and self.snake.is_collision(point_u))
+                    or (dir_r and self.snake.is_collision(point_d))
+                ),
+                # Danger left
+                np.int32(
+                    (dir_d and self.snake.is_collision(point_r))
+                    or (dir_u and self.snake.is_collision(point_l))
+                    or (dir_r and self.snake.is_collision(point_u))
+                    or (dir_l and self.snake.is_collision(point_d))
+                ),
+                # Move direction
+                dir_l,
+                dir_r,
+                dir_u,
+                dir_d,
+                # Food location
+                ((self.food.x - current_head.x) // BLOCK_SIZE) / self.grid_width,  # food left
+                ((self.food.y - current_head.y) // BLOCK_SIZE) / self.grid_height,  # food down
+                ((self.food.x - prev_head.x) // BLOCK_SIZE) / self.grid_width,
+                ((self.food.y - prev_head.y) // BLOCK_SIZE) / self.grid_height,
+            ]
+        ]
+        return np.array(state, dtype=np.float32)
 
     def _place_food(self) -> None:
         x = random.randint(0, (self.window_width // BLOCK_SIZE) - 1) * BLOCK_SIZE
