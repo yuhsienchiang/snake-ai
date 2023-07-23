@@ -20,9 +20,9 @@ class MLPAgent(Agent):
             idx_action = np.random.randint(0, 3)
         else:
             state = (
-                state
+                state.to(self.main_net.device)
                 if isinstance(state, torch.Tensor)
-                else torch.tensor(state, dtype=torch.float32)
+                else torch.tensor(state, dtype=torch.float32, device=self.main_net.device)
             )
 
             # handdle input without batch dim

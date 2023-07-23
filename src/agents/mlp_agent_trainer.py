@@ -125,16 +125,18 @@ class MLPAgentTrainer(object):
         batch_memory = memory.sample(self.batch_size)
 
         # 2-1. current state data
-        batch_state = batch_memory.state
-        batch_action_idx = torch.argmax(batch_memory.action, dim=1, keepdim=True)
-        batch_reward = batch_memory.reward
+        batch_state = batch_memory.state.to(self.device)
+        batch_action_idx = torch.argmax(batch_memory.action, dim=1, keepdim=True).to(
+            self.device
+        )
+        batch_reward = batch_memory.reward.to(self.device)
         batch_q_values = self.agent.main_net(batch_state).gather(1, batch_action_idx)
 
         # 2-2. next state info
         batch_non_done_next_state_mask = torch.tensor(
-            [done == 0 for done in batch_memory.done]
+            [done == 0 for done in batch_memory.done], device=self.device
         )
-        batch_non_done_next_state = batch_memory.next_state[
+        batch_non_done_next_state = batch_memory.next_state.to(self.device)[
             batch_non_done_next_state_mask
         ]
         with torch.no_grad():
@@ -157,7 +159,9 @@ class MLPAgentTrainer(object):
         # [Implement]
         # non_done q values = reward
         #     done q values = reward + discount_rate * next_q_values
-        batch_target_q_values = batch_reward.clone().reshape_as(batch_q_values)
+        batch_target_q_values = (
+            batch_reward.clone().reshape_as(batch_q_values).to(self.device)
+        )
         batch_target_q_values[batch_non_done_next_state_mask] += (
             self.discount_rate * batch_non_done_next_q_values
         )
