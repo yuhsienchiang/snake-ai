@@ -9,15 +9,16 @@ if __name__ == "__main__":
 
     mlpAgentTrainer = MLPAgentTrainer(game=snakeGame,
                                       agent=mlpAgent,
-                                      batch_size=128,
                                       memory_size=10000,
                                       loss_func_type="huber",
                                       optimizer_type="AdamW",
                                       model_learn_rate=0.0001,
-                                      discount_rate=0.99,
+                                      discount_rate=0.95,
                                       epsilon_start=0.9,
                                       epsilon_end=0.05,
-                                      epsilon_decay=1000.0)
+                                      epsilon_decay=5000.0)
     
-    mlpAgentTrainer.train(episodes_num=100)
+    mlpAgentTrainer.train(episodes_num=500, batch_size=192)
+    snakeGame.end_game_ui(title="Train Done!", score=max(mlpAgentTrainer.score_records))
     print("train done")
+    print(f"best score = {max(mlpAgentTrainer.score_records)}")

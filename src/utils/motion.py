@@ -1,6 +1,6 @@
 from enum import Enum
 
-SPEED = 10
+SPEED = 20
 
 class Direction(Enum):
     RIGHT = 0
