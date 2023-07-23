@@ -9,8 +9,8 @@ from models.mlp import MLP_QNet
 class MLPAgent(Agent):
     def __init__(self, game: SnakeGame) -> None:
         super(MLPAgent, self).__init__(game=game)
-        self.main_net = MLP_QNet(game.grid_size, 64, 64, 3)
-        self.target_net = MLP_QNet(game.grid_size, 64, 64, 3)
+        self.main_net = MLP_QNet([(11, 96), (96, 96), (96, 3)])
+        self.target_net = MLP_QNet([(11, 96), (96, 96), (96, 3)])
         self.target_net.load_state_dict(self.main_net.state_dict())
 
     def get_action(self, state: np.ndarray) -> Action:

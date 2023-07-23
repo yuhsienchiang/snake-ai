@@ -1,11 +1,10 @@
 import os
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class MLP_QNet(nn.Module):
-    def __init__(self, input_dim: int, hidden_1_dim: int, hidden_2_dim: int, output_dim: int) -> None:
+    def __init__(self, net_arch: list[tuple[int, int]]) -> None:
         super(MLP_QNet, self).__init__()
 
         self.device = torch.device(
@@ -14,18 +13,30 @@ class MLP_QNet(nn.Module):
             else "cpu"
         )
 
-        self.input_layer = nn.Flatten()
-        self.hidden_1_layer = nn.Linear(input_dim, hidden_1_dim)
-        self.hidden_2_layer = nn.Linear(hidden_1_dim, hidden_2_dim)
-        self.output_layer = nn.Linear(hidden_2_dim, output_dim)
+        self.flatten_layer = nn.Flatten().to(self.device)
+        self.linear_layers = nn.ModuleList(
+            [
+                nn.Linear(in_dim, out_dim).to(self.device)
+                for (in_dim, out_dim) in net_arch
+            ]
+        )
+
+        self.activation = nn.ReLU().to(self.device)
+        self.layer_num = len(net_arch)
 
     def forward(self, x):
-        x = self.input_layer(x)
-        x = self.hidden_1_layer(x)
-        x = F.relu(x)
-        x = self.hidden_2_layer(x)
-        x = F.relu(x)
-        return self.output_layer(x)
+        # flatten the input tensor
+        x = self.flatten_layer(x)
+
+        # pass through linear layers
+        for linear_layer_idx, linear_layer in enumerate(self.linear_layers):
+            x = linear_layer(x)
+
+            # pass through activation func except the last layers
+            if linear_layer_idx < self.layer_num - 1:
+                x = self.activation(x)
+
+        return x
 
     def save_model(self, file_name="mlp_qnet.pth"):
         file_name = os.path.join("./", file_name)

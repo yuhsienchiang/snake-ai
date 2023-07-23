@@ -38,8 +38,9 @@ class MLPAgentTrainer(object):
         # set model to training model
         self.agent.main_net.train()
         self.agent.target_net.eval()
+        self.device = self.agent.main_net.device
 
-        self.score_records = []
+        self.score_records = [0]
 
     def select_optimizer(self, optimizer_type, learning_rate):
         if optimizer_type == "Adam":
