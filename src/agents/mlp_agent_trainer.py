@@ -70,7 +70,7 @@ class MLPAgentTrainer(object):
             while done is False:
                 training_steps += 1
 
-                # 3. get action
+                # 2. get action
                 # explore and exploit stratagey for obtaining action
                 # can implement a better stratagey
                 eps_threshold = self.epsilon_end + (
@@ -81,11 +81,10 @@ class MLPAgentTrainer(object):
                 else:  # exploit
                     action = self.agent.get_action(state=state)
 
-                # 4.play action
+                # 3.play action
                 next_state, reward, done, score = self.game.play_step(action=action)
-                # 5. observe new state
 
-                # 6. save transition info in memory
+                # 4. save transition info in memory
                 self.memory.save(
                     state=state,
                     action=action,
@@ -94,17 +93,17 @@ class MLPAgentTrainer(object):
                     done=done,
                 )
 
-                # 7. move to next state
+                # 5. move to next state
                 state = next_state
 
-                # 8. train model every 4 steps
+                # 6 - 1. train model every 4 steps
                 if training_steps % 4 == 0 or done:
                     self.train_step(
                         memory=self.memory,
                         batch_size=batch_size if not done else len(self.memory),
                     )
 
-                # 9. update target net every 50 steps
+                # 6 - 2. update target net every 50 steps
                 if training_steps % 50 == 0 or done:
                     self.update_target_net(
                         target_net=self.agent.target_net,
