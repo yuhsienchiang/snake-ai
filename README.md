@@ -1,6 +1,8 @@
 # snake-ai
 
 ## Description
+This project aims to explore the ability of various AI models to play the timeless Snake game.
+The primary objective is to employ diverse AI models and assess their performance, drawing comparisons to discern their respective strengths and weaknesses.
 
 ## Setup
 1. Create and activate virtual env with pyenv
